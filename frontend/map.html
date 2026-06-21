@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Farmer Map</title>
+    <script>
+        if (!localStorage.getItem("token")) {
+            alert("Please login first");
+            window.location.href = "home.html";
+        }
+    </script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+        }
+        
+        #map {
+            height: 500px;
+            width: 90%;
+            margin: auto;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🌍 Farmer Locations Map</h2>
+
+    <button onclick="window.location.href='dashboard.html'">⬅ Back</button>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // 🗺️ Create map
+        const map = L.map('map').setView([20.5937, 78.9629], 5);
+
+        // 🌍 Map tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // 📡 Load farmers
+        async function loadFarmers() {
+            try {
+                const res = await fetch("http://127.0.0.1:5000/getFarmers");
+                const farmers = await res.json();
+
+                const markers = []; // ✅ store markers
+
+                farmers.forEach(farmer => {
+                    if (farmer.lat && farmer.lng) {
+
+                        const marker = L.marker([farmer.lat, farmer.lng])
+                            .addTo(map)
+                            .bindPopup(`
+        <b>${farmer.name}</b><br>
+        ${farmer.village}<br>
+        Acres: ${farmer.acres}<br>
+        <button onclick="showRoute(${farmer.lat}, ${farmer.lng})">
+            🚗 Get Direction
+        </button>
+    `)
+                            .bindTooltip(farmer.name, {
+                                direction: "top"
+                            });
+
+                        markers.push(marker); // ✅ save marker
+                    }
+                });
+
+                // 🔍 Auto zoom to all farmers
+                if (markers.length > 0) {
+                    const group = L.featureGroup(markers);
+                    map.fitBounds(group.getBounds());
+                }
+
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        loadFarmers();
+        let userLat, userLng;
+
+        // get user location
+        navigator.geolocation.getCurrentPosition((pos) => {
+            userLat = pos.coords.latitude;
+            userLng = pos.coords.longitude;
+
+            // show your location
+            L.marker([userLat, userLng])
+                .addTo(map)
+                .bindPopup("📍 You are here")
+                .openPopup();
+        });
+        let routeControl; // store route
+
+        function showRoute(lat, lng) {
+
+            if (!userLat || !userLng) {
+                alert("Location not available");
+                return;
+            }
+
+            // remove old route
+            if (routeControl) {
+                map.removeControl(routeControl);
+            }
+
+            routeControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLat, userLng), // start
+                    L.latLng(lat, lng) // destination
+                ],
+                routeWhileDragging: false
+            }).addTo(map);
+        }
+        map.fitBounds([
+            [userLat, userLng],
+            [lat, lng]
+        ]);
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GANGAMAULI SUGAR</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Modal Background */
+        
+        #loginModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Login Box */
+        
+        .login-box {
+            background: white;
+            padding: 25px;
+            width: 300px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        /* Title */
+        
+        .login-box h2 {
+            margin-bottom: 15px;
+        }
+        /* Inputs */
+        
+        .login-box input,
+        .login-box select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+        }
+        /* Buttons */
+        
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        .cancel-btn {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background: transparent;
+            border: none;
+            color: #555;
+            cursor: pointer;
+        }
+        /* Hover */
+        
+        .login-btn:hover {
+            background: #388e3c;
+        }
+        /* Hamburger button */
+        
+        .menu-toggle {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+        }
+        /* Mobile menu */
+        
+        @media(max-width:768px) {
+            .menu-toggle {
+                display: block;
+            }
+            .nav-links {
+                position: absolute;
+                top: 60px;
+                right: 0;
+                background: #2e7d32;
+                width: 200px;
+                flex-direction: column;
+                display: none;
+                padding: 10px;
+                border-radius: 0 0 10px 10px;
+            }
+            .nav-links a {
+                display: block;
+                padding: 10px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .nav-links.show {
+                display: flex;
+            }
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f4f6f8;
+        }
+        /* 🔝 NAVBAR */
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: linear-gradient(to right, #2e7d32, #4CAF50);
+            color: white;
+        }
+        
+        .logo {
+            font-weight: 600;
+            font-size: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+        }
+        
+        .nav-links a.active {
+            border-bottom: 2px solid white;
+        }
+        /* 🎯 HERO */
+        
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 50px;
+            background: #eef3f0;
+        }
+        
+        .hero-text,
+        .hero-img {
+            width: 50%;
+        }
+        
+        .hero-img {
+            height: 250px;
+        }
+        
+        .hero-text h1 {
+            font-size: 42px;
+        }
+        
+        .hero-text h1 span {
+            color: #2e7d32;
+        }
+        
+        .hero-text p {
+            color: #555;
+        }
+        
+        .hero-text button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        /* IMAGE SIDE */
+        
+        .hero-img {
+            position: relative;
+            z-index: 1;
+            width: 700px;
+            height: 350px;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .hero-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        /* arrows */
+        
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border-radius: 50%;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .left {
+            left: 10px;
+        }
+        
+        .right {
+            right: 10px;
+        }
+        /* dots */
+        
+        .dots {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .dots span {
+            height: 8px;
+            width: 8px;
+            background: #ccc;
+            display: inline-block;
+            border-radius: 50%;
+            margin: 3px;
+        }
+        
+        .dots .active {
+            background: #2e7d32;
+        }
+        /* 📊 FEATURES */
+        
+        .features {
+            display: flex;
+            gap: 20px;
+            padding: 30px 50px;
+        }
+        
+        .card {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .icon {
+            font-size: 25px;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 50%;
+        }
+        /* 🏢 SECTION */
+        
+        .section {
+            display: flex;
+            gap: 20px;
+            padding: 20px 50px;
+        }
+        /* company */
+        
+        .company {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .company p {
+            font-size: 14px;
+        }
+        /* process */
+        
+        .process {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step {
+            text-align: center;
+            width: 120px;
+        }
+        
+        .step span {
+            color: #2e7d32;
+        }
+        
+        .step img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .arrow-line {
+            font-size: 20px;
+            color: #999;
+        }
+        /* ⚡ QUICK */
+        
+        .quick {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .quick button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #4CAF50;
+            color: white;
+        }
+        /* FOOTER */
+        
+        .footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        /* 📱 MOBILE */
+        
+        @media(max-width:768px) {
+            .hero,
+            .features,
+            .section {
+                flex-direction: column;
+            }
+            .hero-text,
+            .hero-img {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<!-- LOGIN MODAL -->
+<div id="loginModal">
+    <div class="login-box">
+
+        <h2>Login Access</h2>
+
+        <select id="role">
+            <option value="admin">Admin</option>
+            <option value="worker">Factory Worker</option>
+        </select>
+
+        <input type="text" id="userId" placeholder="Enter ID">
+        <input type="password" id="password" placeholder="Enter Password">
+
+        <button class="login-btn" onclick="login()">Login</button>
+        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+
+    </div>
+</div>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">🌾 GANGAMAULI SUGAR</div>
+
+        <!-- ☰ Menu Button -->
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+        <!-- Links -->
+        <div class="nav-links" id="navLinks">
+            <a class="active">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="#" onclick="checkLogin()">Add Farmer</a>
+            <a href="map.html">Map</a>
+            <a href="#">About Us</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+
+        <div class="hero-text">
+            <h1>Smart Sugar Factory <span>Management</span></h1>
+            <p>Manage farmers, track sugarcane data, analyze production and monitor locations in one smart system.</p>
+            <button onclick="location.href='dashboard.html'">View Dashboard →</button>
+        </div>
+
+        <div class="hero-img">
+            <img id="slider" src="https://images.unsplash.com/photo-1605338809282-7b3c6b5b8d8e">
+            <div class="arrow left" onclick="prev()">❮</div>
+            <div class="arrow right" onclick="next()">❯</div>
+        </div>
+
+    </div>
+
+    <div class="dots" id="dots"></div>
+
+    <!-- FEATURES -->
+    <div class="features">
+
+        <div class="card">
+            <div class="icon">👨‍🌾</div>
+            <div>
+                <b>Farmer Management</b><br> Store and manage farmer data easily.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="icon">📊</div>
+            <div>
+                <b>Analytics</b><br> Track production, acres & monthly data.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="icon">📍</div>
+            <div>
+                <b>Map Tracking</b><br> Visualize farmer locations on map.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SECTION -->
+    <div class="section">
+
+        <div class="company">
+            <h3>About Company</h3>
+            <p><b>GANGAMAULI SUGAR & ALLIED INDUSTRIES PRIVATE LIMITED</b></p>
+            <p>📍 2018, Pune</p>
+            <p>💰 ₹5 Crore Authorized</p>
+            <p>💰 ₹1 Crore Paid-up</p>
+            <p>👤 Laxman More & Pravin More</p>
+            <p>✅ Active</p>
+        </div>
+
+        <div class="process">
+            <h3>Sugar Manufacturing Process</h3>
+
+            <div class="steps">
+
+                <div class="step">
+                    <img src="https://coupeco.com/wp-content/uploads/2025/04/fm5-2.webp">
+                    <span>Harvesting</span>
+                    <p>Sugarcane is collected from farms.</p>
+                </div>
+
+                <div class="arrow-line">➜</div>
+
+                <div class="step">
+                    <img src="https://www.shutterstock.com/shutterstock/videos/1339660/thumb/1.jpg">
+                    <span><b>Crushing</b></span>
+                    <p>Juice extracted from cane.</p>
+                </div>
+
+                <div class="arrow-line">➜</div>
+
+                <div class="step">
+                    <img src="https://www.sri.org.au/wp-content/uploads/2015/02/Short-Retention-Clarifier.jpg">
+                    <span><b>Clarification</b></span>
+                    <p>Impurities removed.</p>
+                </div>
+
+                <div class="arrow-line">➜</div>
+
+                <div class="step">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4X4dZkxWJgGjmXnOipfuxKlaArnDT2Rdesg&s">
+                    <span><b>Evaporation</b></span>
+                    <p>Juice converted into syrup.</p>
+                </div>
+
+                <div class="arrow-line">➜</div>
+
+                <div class="step">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQz-nDTyWkdAp0nPylLDOvbDUF7AVLSs2T-0Q&s">
+                    <span><b>Crystallization</b></span>
+                    <p> Sugar crystals formed</p>
+                </div>
+
+                <div class="arrow-line">➜</div>
+
+                <div class="step">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReS1SFda11aB6AT_R0VU365x37QPOeLBZijQ&s">
+                    <span><b>Packaging</b></span>
+                    <p> Final Product packed.</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUICK -->
+    <div class="quick">
+        <button onclick="location.href='index.html'">Add Farmer</button>
+        <button onclick="location.href='dashboard.html'">Dashboard</button>
+        <button onclick="location.href='map.html'">View Map</button>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        📧 pravinmore@gangagroup.co.in <br> © 2026 GANGAMAULI SUGAR | All Rights Reserved
+    </div>
+
+    <!-- JS SLIDER -->
+    <script>
+        const imgs = [
+            "https://images.unsplash.com/photo-1605338809282-7b3c6b5b8d8e",
+            "https://images.unsplash.com/photo-1501004318641-b39e6451bec6",
+            "https://images.unsplash.com/photo-1587049352851-8d4e89133924"
+        ];
+
+        let i = 0;
+
+        function show() {
+            document.getElementById("slider").src = imgs[i];
+            updateDots();
+        }
+
+        function next() {
+            i = (i + 1) % imgs.length;
+            show();
+        }
+
+        function prev() {
+            i = (i - 1 + imgs.length) % imgs.length;
+            show();
+        }
+
+        function updateDots() {
+            let d = document.getElementById("dots");
+            d.innerHTML = "";
+            imgs.forEach((_, index) => {
+                let dot = document.createElement("span");
+                if (index === i) dot.classList.add("active");
+                d.appendChild(dot);
+            });
+        }
+
+        setInterval(next, 4000);
+        show();
+
+        function checkLogin() {
+            document.getElementById("loginModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("loginModal").style.display = "none";
+        }
+        <!-- REPLACE ONLY THIS LOGIN FUNCTION -->
+
+
+
+        async function login() {
+
+            const role = document.getElementById("role").value;
+
+            const username =
+                document.getElementById("userId").value;
+
+            const password =
+                document.getElementById("password").value;
+
+            // VALIDATION
+
+            if (!username || !password) {
+
+                alert("Please enter username and password");
+
+                return;
+            }
+
+            try {
+
+                const res = await fetch(
+                    "http://127.0.0.1:5000/login", {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            username,
+                            password
+                        })
+                    }
+                );
+
+                const data = await res.json();
+
+                // SUCCESS LOGIN
+
+                if (res.ok) {
+
+                    // SAVE LOGIN DATA
+
+                    localStorage.setItem("token", data.token);
+
+                    localStorage.setItem("role", data.role);
+
+                    localStorage.setItem("username", data.username);
+
+                    // CLOSE MODAL
+
+                    closeModal();
+
+                    // REDIRECT
+
+                    if (data.role === "admin") {
+
+                        window.location.href = "admin.html";
+
+                    } else {
+
+                        window.location.href = "dashboard.html";
+                    }
+
+                }
+
+                // INVALID LOGIN
+                else {
+
+                    alert(data.message || "Invalid Login");
+                }
+
+            } catch (err) {
+
+                console.log(err);
+
+                alert("Server not running ❌");
+            }
+        }
+    </script>
+
+</body>
+
+</html>

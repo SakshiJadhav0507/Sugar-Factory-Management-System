@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Farmer Dashboard</title>
+
+    <!-- GOOGLE FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CHART JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- EXCEL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+        /* NAVBAR */
+        
+        .navbar {
+            width: 100%;
+            background: linear-gradient(to right, #1b5e20, #43a047);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .nav-right {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        
+        .add-btn {
+            background: white;
+            color: #2e7d32;
+        }
+        
+        .map-btn {
+            background: #1565c0;
+            color: white;
+        }
+        
+        .logout-btn {
+            background: #e53935;
+            color: white;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+        /* MAIN */
+        
+        .container {
+            max-width: 1450px;
+            margin: auto;
+            padding: 30px;
+        }
+        /* TOP SECTION */
+        
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .dashboard-title h1 {
+            font-size: 38px;
+            color: #1b5e20;
+        }
+        
+        .dashboard-title p {
+            color: #666;
+            margin-top: 8px;
+        }
+        /* STATS */
+        
+        .stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            min-width: 220px;
+            background: white;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        
+        .stat-card h2 {
+            font-size: 34px;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: #666;
+            font-size: 15px;
+        }
+        /* TOOLBAR */
+        
+        .toolbar {
+            background: white;
+            padding: 22px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            margin-bottom: 28px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 320px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            outline: none;
+            font-size: 15px;
+        }
+        
+        .search-box input:focus {
+            border-color: #4CAF50;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons button {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            transition: 0.3s;
+        }
+        
+        .pdf-btn {
+            background: #e53935;
+        }
+        
+        .excel-btn {
+            background: #2e7d32;
+        }
+        
+        .action-buttons button:hover {
+            transform: translateY(-2px);
+        }
+        /* TABLE */
+        
+        .table-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 35px;
+        }
+        
+        .table-header {
+            padding: 22px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1300px;
+        }
+        
+        thead {
+            background: linear-gradient(to right, #2e7d32, #43a047);
+            color: white;
+        }
+        
+        th {
+            padding: 18px;
+            font-size: 15px;
+            text-align: center;
+        }
+        
+        td {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+        /* ACTION BUTTONS */
+        
+        .table-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .edit-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .delete-btn {
+            background: #e53935;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .edit-btn:hover,
+        .delete-btn:hover {
+            opacity: 0.9;
+        }
+        /* CHART */
+        
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .chart-card h2 {
+            text-align: center;
+            color: #1b5e20;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+        }
+        /* MOBILE */
+        
+        @media(max-width:768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            .top-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .toolbar {
+                flex-direction: column;
+            }
+            .action-buttons {
+                width: 100%;
+            }
+            .action-buttons button {
+                flex: 1;
+            }
+            .dashboard-title h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <div class="logo">
+            🌾 GANGAMAULI SUGAR
+        </div>
+
+        <div class="nav-right">
+
+            <button class="nav-btn add-btn" onclick="window.location.href='index.html'">
+                ➕ Add Farmer
+            </button>
+
+            <button class="nav-btn map-btn" onclick="window.location.href='map.html'">
+                📍 View Map
+            </button>
+
+            <button class="nav-btn logout-btn" onclick="logout()">
+                🚪 Logout
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+
+    <div class="container">
+
+        <!-- TOP -->
+
+        <div class="top-section">
+
+            <div class="dashboard-title">
+                <h1>Farmer Dashboard</h1>
+                <p>
+                    Manage sugarcane farmers, land records and production details.
+                </p>
+            </div>
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <h2 id="totalFarmers">0</h2>
+                    <p>Total Farmers</p>
+                </div>
+
+                <div class="stat-card">
+                    <h2 id="totalAcres">0</h2>
+                    <p>Total Acres</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TOOLBAR -->
+
+        <div class="toolbar">
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search by farmer name, village or cane type...">
+            </div>
+
+            <div class="action-buttons">
+
+                <button class="pdf-btn" onclick="downloadPDF()">
+                    📄 Export PDF
+                </button>
+
+                <button class="excel-btn" onclick="downloadExcel()">
+                    📊 Export Excel
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <div class="table-card">
+
+
+            <div class="table-wrapper">
+
+                <table id="farmersTable">
+
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Village</th>
+                            <th>Acres</th>
+                            <th>Worker</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Cane Type</th>
+                            <th>Plant Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="farmerTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- CHART -->
+
+        <div class="chart-card">
+
+            <h2>📊 Farmers by Village</h2>
+
+            <div class="chart-container">
+                <canvas id="villageChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let chart;
+
+        // ================= LOGOUT =================
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "home.html";
+        }
+
+        // ================= LOAD FARMERS =================
+
+        async function loadFarmers() {
+
+            try {
+
+                const res =
+                    await fetch("http://127.0.0.1:5000/getFarmers");
+
+                const farmers = await res.json();
+
+                const table =
+                    document.getElementById("farmerTable");
+
+                table.innerHTML = "";
+
+                let totalAcres = 0;
+
+                const villageData = {};
+
+                farmers.forEach(f => {
+
+                    totalAcres += Number(f.acres || 0);
+
+                    villageData[f.village] =
+                        (villageData[f.village] || 0) + 1;
+
+                    table.innerHTML += `
+
+                    <tr>
+
+                        <td>${f.name}</td>
+                        <td>${f.village}</td>
+                        <td>${f.acres}</td>
+                        <td>${f.worker || "-"}</td>
+                        <td>${f.lat || "-"}</td>
+                        <td>${f.lng || "-"}</td>
+                        <td>${f.caneType}</td>
+                        <td>${f.plantDate?.split("T")[0] || "-"}</td>
+
+                        <td>
+
+                            <div class="table-actions">
+
+                                <button class="edit-btn"
+                                onclick="editFarmer('${f._id}')">
+                                Edit
+                                </button>
+
+                                <button class="delete-btn"
+                                onclick="deleteFarmer('${f._id}')">
+                                Delete
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                    `;
+                });
+
+                document.getElementById("totalFarmers").innerText =
+                    farmers.length;
+
+                document.getElementById("totalAcres").innerText =
+                    totalAcres.toFixed(2);
+
+                loadChart(villageData);
+
+            } catch (err) {
+
+                console.log(err);
+
+                alert("Error loading farmers");
+            }
+        }
+
+        // ================= CHART =================
+
+        function loadChart(villageData) {
+
+            const labels = Object.keys(villageData);
+
+            const values = Object.values(villageData);
+
+            const ctx = document.getElementById("villageChart");
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+
+                type: "bar",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [{
+                        label: "Farmers",
+                        data: values,
+                        backgroundColor: "#4CAF50",
+                        borderRadius: 8
+                    }]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // ================= DELETE FARMER =================
+
+        async function deleteFarmer(id) {
+
+            if (!confirm("Delete this farmer?")) return;
+
+            await fetch(
+                `http://127.0.0.1:5000/deleteFarmer/${id}`, {
+                    method: "DELETE"
+                }
+            );
+
+            loadFarmers();
+        }
+
+        // ================= EDIT FARMER =================
+
+        function editFarmer(id) {
+
+            localStorage.setItem("editId", id);
+
+            window.location.href = "index.html";
+        }
+
+        // ================= SEARCH =================
+
+        document.getElementById("searchInput")
+            .addEventListener("keyup", function() {
+
+                let value =
+                    this.value.toLowerCase();
+
+                let rows =
+                    document.querySelectorAll("#farmerTable tr");
+
+                rows.forEach(row => {
+
+                    row.style.display =
+                        row.innerText.toLowerCase()
+                        .includes(value) ?
+                        "" :
+                        "none";
+                });
+            });
+
+        // ================= PDF DOWNLOAD =================
+
+        function downloadPDF() {
+
+            const {
+                jsPDF
+            } = window.jspdf;
+
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+
+            doc.text(
+                "GANGAMAULI SUGAR - Farmer Report",
+                14,
+                20
+            );
+
+            let rows = [];
+
+            document.querySelectorAll("#farmerTable tr")
+                .forEach(row => {
+
+                    let cols = row.querySelectorAll("td");
+
+                    if (cols.length > 0) {
+
+                        rows.push([
+                            cols[0].innerText,
+                            cols[1].innerText,
+                            cols[2].innerText,
+                            cols[3].innerText,
+                            cols[4].innerText,
+                            cols[5].innerText,
+                            cols[6].innerText,
+                            cols[7].innerText
+                        ]);
+                    }
+                });
+
+            doc.autoTable({
+                head: [
+                    [
+                        "Name",
+                        "Village",
+                        "Acres",
+                        "Worker",
+                        "Latitude",
+                        "Longitude",
+                        "Cane Type",
+                        "Plant Date"
+                    ]
+                ],
+                body: rows,
+                startY: 30
+            });
+
+            doc.save("Farmers_Report.pdf");
+        }
+
+        // ================= EXCEL DOWNLOAD =================
+
+        function downloadExcel() {
+
+            let table =
+                document.getElementById("farmersTable");
+
+            let workbook =
+                XLSX.utils.table_to_book(table, {
+                    sheet: "Farmers"
+                });
+
+            XLSX.writeFile(
+                workbook,
+                "Farmers_Report.xlsx"
+            );
+        }
+
+        // ================= START =================
+
+        loadFarmers();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        /* 🔝 NAVBAR */
+        
+        .navbar {
+            background: linear-gradient(to right, #2e7d32, #4CAF50);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        /* 📦 CONTAINER */
+        
+        .container {
+            padding: 20px;
+        }
+        /* 📊 CARDS */
+        
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        /* INPUTS */
+        
+        input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        /* BUTTON */
+        
+        button {
+            padding: 10px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #388e3c;
+        }
+        /* TABLE */
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+        /* ACTION BUTTON */
+        
+        .danger {
+            background: red;
+        }
+        
+        .danger:hover {
+            background: darkred;
+        }
+        /* QUICK ACTION */
+        
+        .quick {
+            margin-bottom: 20px;
+        }
+        
+        .quick button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // 🔐 PROTECT ADMIN PAGE
+        if (localStorage.getItem("role") !== "admin") {
+            alert("Access Denied");
+            window.location.href = "home.html";
+        }
+    </script>
+
+    <!-- 🔝 NAVBAR -->
+    <div class="navbar">
+        <h2>👨‍💼 Admin Dashboard</h2>
+    </div>
+
+    <div class="container">
+
+        <!-- 🚀 QUICK ACTION -->
+        <div class="card quick">
+            <h3>Quick Actions</h3>
+            <button onclick="location.href='dashboard.html'">📊 Farmer Dashboard</button>
+            <button onclick="location.href='index.html'">➕ Add Farmer</button>
+        </div>
+
+        <!-- ➕ ADD WORKER -->
+        <div class="card">
+            <h3>Add Worker</h3>
+
+            <input type="password" id="workerPass" placeholder="Worker Name">
+            <input type="password" id="workerPass" placeholder="Password">
+
+            <button onclick="addWorker()">Add Worker</button>
+        </div>
+
+        <!-- 👷 WORKER LIST -->
+        <div class="card">
+            <h3>All Workers</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="workerTable"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // ➕ ADD WORKER
+        async function addWorker() {
+            const password = document.getElementById("workerPass").value;
+
+            if (!password) {
+                alert("Enter password");
+                return;
+            }
+
+            const res = await fetch("http://127.0.0.1:5000/addWorker", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    password
+                })
+            });
+
+            const msg = await res.text();
+            alert(msg);
+
+            loadWorkers();
+        }
+        // 📥 LOAD WORKERS
+        async function loadWorkers() {
+            try {
+                const res = await fetch("http://127.0.0.1:5000/workers");
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch workers");
+                }
+
+                const workers = await res.json();
+
+                const table = document.getElementById("workerTable");
+                table.innerHTML = "";
+
+                workers.forEach(w => {
+                    table.innerHTML += `
+                <tr>
+                    <td>${w.username}</td>
+                    <td>
+                        <button class="danger" onclick="deleteWorker('${w._id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+                });
+
+            } catch (err) {
+                console.error("❌ Error:", err);
+                alert("Error loading workers. Check server.");
+            }
+        }
+
+
+
+        // ❌ DELETE WORKER
+        async function deleteWorker(id) {
+            if (!confirm("Delete this worker?")) return;
+
+            try {
+                await fetch(`http://127.0.0.1:5000/deleteWorker/${id}`, {
+                    method: "DELETE"
+                });
+
+                loadWorkers();
+
+            } catch (err) {
+                alert("❌ Error deleting worker");
+            }
+        }
+
+        // 🚀 LOAD ON START
+        loadWorkers();
+    </script>
+
+</body>
+
+</html>

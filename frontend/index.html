@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Farmer Entry</title>
+
+    <!-- GOOGLE FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- LEAFLET MAP -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        
+        body {
+            background: #f4f7fb;
+        }
+        
+        .navbar {
+            background: linear-gradient(to right, #1b5e20, #43a047);
+            padding: 16px 30px;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        h2 {
+            color: #1b5e20;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input,
+        select {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .location-box {
+            background: #eef7ee;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        #map {
+            height: 350px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .primary-btn {
+            background: #2e7d32;
+            color: white;
+        }
+        
+        .location-btn {
+            background: #1565c0;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #ddd;
+        }
+        
+        @media(max-width:768px) {
+            .container {
+                margin: 20px;
+                padding: 25px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+        🌾 GANGAMAULI SUGAR - Farmer Entry
+    </div>
+
+    <!-- FORM -->
+
+    <div class="container">
+
+        <h2 id="title">Add Farmer</h2>
+
+        <!-- Farmer Name -->
+
+        <div class="form-group">
+            <label>Farmer Name</label>
+            <input type="text" id="name" placeholder="Enter farmer name">
+        </div>
+
+        <!-- Village -->
+
+        <div class="form-group">
+            <label>Village</label>
+            <input type="text" id="village" placeholder="Enter village name">
+        </div>
+
+        <!-- Acres -->
+
+        <div class="form-group">
+            <label>Acres</label>
+            <input type="number" id="acres" placeholder="Enter land acres">
+        </div>
+
+        <!-- Worker -->
+
+        <div class="form-group">
+            <label>Worker Name</label>
+            <input type="text" id="worker" readonly>
+        </div>
+
+        <!-- Cane Type -->
+
+        <div class="form-group">
+
+            <label>Sugarcane Type</label>
+
+            <select id="caneType" onchange="handleCaneType()">
+
+                <option value="">Select Sugarcane Type</option>
+
+                <option value="Co-86032">Co-86032</option>
+
+                <option value="Co-0238">Co-0238</option>
+
+                <option value="Co-8014">Co-8014</option>
+
+                <option value="Other">Other</option>
+
+            </select>
+
+        </div>
+
+        <!-- Other Cane -->
+
+        <div class="form-group">
+
+            <input type="text" id="otherCaneType" placeholder="Enter Sugarcane Type" style="display:none;">
+
+        </div>
+
+        <!-- Plant Date -->
+
+        <div class="form-group">
+            <label>Plant Date</label>
+            <input type="date" id="plantDate">
+        </div>
+
+        <!-- Search Village -->
+
+        <div class="form-group">
+            <label>Search Village / Location</label>
+            <input type="text" id="searchPlace" placeholder="Search village name">
+        </div>
+
+        <!-- Latitude -->
+
+        <div class="form-group">
+            <label>Latitude</label>
+            <input type="text" id="latInput" placeholder="Latitude">
+        </div>
+
+        <!-- Longitude -->
+
+        <div class="form-group">
+            <label>Longitude</label>
+            <input type="text" id="lngInput" placeholder="Longitude">
+        </div>
+
+        <!-- LOCATION -->
+
+        <div class="location-box">
+
+            📍 Selected Location :
+            <span id="location">Not Selected</span>
+
+        </div>
+
+        <!-- BUTTONS -->
+
+        <div class="btn-group">
+
+            <button class="location-btn" onclick="getLiveLocation()">
+                📍 Get Live Location
+            </button>
+
+            <button class="location-btn" onclick="searchLocation()">
+                🔎 Search Village
+            </button>
+
+            <button class="primary-btn" onclick="submitData()" id="submitBtn">
+                ➕ Add Farmer
+            </button>
+
+            <button class="secondary-btn" onclick="cancelEdit()" id="cancelBtn" style="display:none;">
+                Cancel
+            </button>
+
+        </div>
+
+        <!-- MAP -->
+
+        <div id="map"></div>
+
+    </div>
+
+    <!-- LEAFLET -->
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // ================= PAGE ACCESS =================
+
+        const role = localStorage.getItem("role");
+
+        if (!role) {
+
+            localStorage.setItem("role", "worker");
+            localStorage.setItem("username", "Demo Worker");
+
+        }
+
+        let lat = "";
+        let lng = "";
+        let editId = null;
+        let marker;
+
+        // ================= AUTO WORKER NAME =================
+
+        document.getElementById("worker").value =
+            localStorage.getItem("username") || "Demo Worker";
+
+        // ================= MAP =================
+
+        const map = L.map('map').setView([18.5204, 73.8567], 7);
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }
+        ).addTo(map);
+
+        // ================= MAP CLICK =================
+
+        map.on('click', function(e) {
+
+            lat = e.latlng.lat;
+            lng = e.latlng.lng;
+
+            updateLocation(lat, lng);
+
+        });
+
+        // ================= UPDATE LOCATION =================
+
+        function updateLocation(latitude, longitude) {
+
+            lat = latitude;
+            lng = longitude;
+
+            document.getElementById("latInput").value = lat;
+            document.getElementById("lngInput").value = lng;
+
+            document.getElementById("location").innerText =
+                lat + " , " + lng;
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.marker([lat, lng]).addTo(map);
+
+            map.setView([lat, lng], 14);
+
+        }
+
+        // ================= LIVE LOCATION =================
+
+        function getLiveLocation() {
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+
+                updateLocation(
+                    pos.coords.latitude,
+                    pos.coords.longitude
+                );
+
+            }, () => {
+
+                alert("Location permission denied");
+
+            });
+
+        }
+
+        // ================= SEARCH LOCATION =================
+
+        async function searchLocation() {
+
+            const place =
+                document.getElementById("searchPlace").value;
+
+            if (!place) {
+
+                alert("Enter village name");
+                return;
+
+            }
+
+            try {
+
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${place}`
+                );
+
+                const data = await res.json();
+
+                if (data.length === 0) {
+
+                    alert("Location not found");
+                    return;
+
+                }
+
+                const result = data[0];
+
+                updateLocation(result.lat, result.lon);
+
+            } catch (err) {
+
+                console.log(err);
+
+                alert("Error searching location");
+
+            }
+
+        }
+
+        // ================= HANDLE CANE TYPE =================
+
+        function handleCaneType() {
+
+            const type =
+                document.getElementById("caneType").value;
+
+            if (type === "Other") {
+
+                document.getElementById("otherCaneType")
+                    .style.display = "block";
+
+            } else {
+
+                document.getElementById("otherCaneType")
+                    .style.display = "none";
+
+            }
+
+        }
+
+        // ================= LOAD EDIT DATA =================
+
+        window.onload = function() {
+
+            editId = localStorage.getItem("editId");
+
+            if (editId) {
+
+                document.getElementById("title").innerText =
+                    "Edit Farmer";
+
+                document.getElementById("submitBtn")
+                    .innerText = "Update Farmer";
+
+                document.getElementById("cancelBtn")
+                    .style.display = "inline-block";
+
+            }
+
+        };
+
+        // ================= SUBMIT DATA =================
+
+        function submitData() {
+
+            const name =
+                document.getElementById("name").value;
+
+            const village =
+                document.getElementById("village").value;
+
+            const acres =
+                document.getElementById("acres").value;
+
+            const worker =
+                document.getElementById("worker").value;
+
+            let caneType =
+                document.getElementById("caneType").value;
+
+            const plantDate =
+                document.getElementById("plantDate").value;
+
+            lat =
+                document.getElementById("latInput").value;
+
+            lng =
+                document.getElementById("lngInput").value;
+
+            // OTHER CANE
+
+            if (caneType === "Other") {
+
+                caneType =
+                    document.getElementById("otherCaneType").value;
+
+            }
+
+            // VALIDATION
+
+            if (!name ||
+                !village ||
+                !acres ||
+                !worker ||
+                !caneType ||
+                !plantDate
+            ) {
+
+                alert("Please fill all fields");
+                return;
+
+            }
+
+            const data = {
+
+                name,
+                village,
+                acres,
+                worker,
+                caneType,
+                plantDate,
+                lat,
+                lng
+
+            };
+
+            // ================= UPDATE =================
+
+            if (editId) {
+
+                fetch(`http://127.0.0.1:5000/updateFarmer/${editId}`, {
+
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(data)
+
+                })
+
+                .then(res => res.text())
+
+                .then(() => {
+
+                    alert("Farmer Updated ✅");
+
+                    localStorage.removeItem("editId");
+
+                    window.location.href = "dashboard.html";
+
+                });
+
+            }
+
+            // ================= ADD =================
+            else {
+
+                fetch("http://127.0.0.1:5000/addFarmer", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(data)
+
+                })
+
+                .then(res => res.text())
+
+                .then(() => {
+
+                    alert("Farmer Added ✅");
+
+                    location.reload();
+
+                });
+
+            }
+
+        }
+
+        // ================= CANCEL EDIT =================
+
+        function cancelEdit() {
+
+            localStorage.removeItem("editId");
+
+            window.location.href = "dashboard.html";
+
+        }
+    </script>
+
+</body>
+
+</html>
